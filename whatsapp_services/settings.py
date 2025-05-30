@@ -109,3 +109,25 @@ if 'RAILWAY_ENVIRONMENT' in os.environ:
     DATABASES = {
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
+
+
+# Auto-create superuser in production
+if 'RAILWAY_ENVIRONMENT' in os.environ:
+    def create_superuser():
+        try:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            if not User.objects.filter(username='admin').exists():
+                User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        except:
+            pass
+    
+    import django
+    from django.core.management import execute_from_command_line
+    import os
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'whatsapp_services.settings')
+    try:
+        django.setup()
+        create_superuser()
+    except:
+        pass
